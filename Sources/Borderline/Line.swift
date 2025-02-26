@@ -1,54 +1,42 @@
 import Foundation
 
-public struct Line {
+import Rearrange
+
+public struct Line<TextPosition> {
 	public let index: Int
-	public let range: NSRange
-	public let whitespaceOnly: Bool
+	public let lowerBound: TextPosition
+	public let lengths: LineComponentLengths
 
-	public init(index: Int, range: NSRange, whitespaceOnly: Bool = false) {
+	public init(index: Int, start: TextPosition, lengths: LineComponentLengths) {
 		self.index = index
-		self.range = range
-		self.whitespaceOnly = whitespaceOnly
-	}
-
-	public var rangeNotIncludingNewline: NSRange {
-		let newLength = Swift.max(range.length - 1, 1)
-
-		return NSRange(location: location, length: newLength)
+		self.lowerBound = start
+		self.lengths = lengths
 	}
 }
 
-extension Line: Hashable {}
-extension Line: Sendable {}
+extension Line: Equatable where TextPosition: Equatable {}
+extension Line: Hashable where TextPosition: Hashable {}
+extension Line: Sendable where TextPosition: Sendable {}
 
-public extension Line {
-	var location: Int {
-		return range.location
+extension Line {
+	public var length: Int {
+		lengths.total
 	}
 
-	var length: Int {
-		return range.length
-	}
-
-	var max: Int {
-		return NSMaxRange(range)
+	public func range<Calculator: TextRangeCalculating>(
+		of component: LineComponent,
+		with calculator: Calculator
+	) -> Calculator.TextRange? where TextPosition == Calculator.Position {
+		lengths.range(of: component, from: lowerBound, with: calculator)
 	}
 }
 
-public extension Line {
-	func rangeFromBeginning(to endLimit: Int) -> NSRange? {
-		if endLimit > max || endLimit < location {
-			return nil
-		}
-		
-		return NSMakeRange(location, endLimit - location)
+extension Line where TextPosition == Int {
+	public func range(of component: LineComponent) -> NSRange? {
+		lengths.range(of: component, from: lowerBound)
 	}
 
-	func rangeToEnd(from startLimit: Int) -> NSRange? {
-		if startLimit > max || startLimit < location {
-			return nil
-		}
-
-		return NSMakeRange(startLimit, max - startLimit)
+	public var upperBound: Int {
+		lowerBound + length
 	}
 }

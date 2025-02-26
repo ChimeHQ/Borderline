@@ -1,24 +1,21 @@
 import Foundation
 import Testing
+
 import Borderline
 
 @Suite
 struct LineTests {
 	@Test
-	func rangeFromBeginning() {
-		let line = Line(index: 5, range: NSRange(location: 10, length: 10))
+	func rangeFromComponents() {
+		let line = Line<Int>(
+			index: 0,
+			start: 0,
+			lengths: LineComponentLengths(leadingWhitespace: 2, content: 10, trailingWhitespace: 1, ending: 2)
+		)
 
-		let range = line.rangeFromBeginning(to: 14)
-
-		#expect(range == NSRange(location: 10, length: 4))
-	}
-
-	@Test
-	func rangeToEnd() {
-		let line = Line(index: 5, range: NSRange(location: 10, length: 10))
-
-		let range = line.rangeToEnd(from: 14)
-
-		#expect(range == NSRange(location: 14, length: 6))
+		#expect(line.range(of: .leadingWhitespace) == NSRange(0..<2))
+		#expect(line.range(of: .content) == NSRange(2..<12))
+		#expect(line.range(of: .trailingWhitespace) == NSRange(12..<13))
+		#expect(line.range(of: .ending) == NSRange(13..<15))
 	}
 }
