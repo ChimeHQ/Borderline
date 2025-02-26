@@ -12,6 +12,10 @@ public struct Line<TextPosition> {
 		self.lowerBound = start
 		self.lengths = lengths
 	}
+	
+	public var isWhitespaceOnly: Bool {
+		lengths.content == 0
+	}
 }
 
 extension Line: Equatable where TextPosition: Equatable {}
@@ -32,7 +36,7 @@ extension Line {
 }
 
 extension Line where TextPosition == Int {
-	public func range(of component: LineComponent) -> NSRange? {
+	public func range(of component: LineComponent) -> NSRange {
 		lengths.range(of: component, from: lowerBound)
 	}
 

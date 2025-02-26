@@ -24,7 +24,7 @@ public enum LineComponent: Hashable, Sendable {
 	/// The line terminator characters.
 	case ending
 	/// the entire range of the line, including both whitespace and content
-	case range
+	case full
 }
 
 public struct LineComponentLengths: Hashable, Sendable {
@@ -39,6 +39,8 @@ public struct LineComponentLengths: Hashable, Sendable {
 		self.trailingWhitespace = trailingWhitespace
 		self.ending = ending
 	}
+
+	public static let empty = LineComponentLengths(leadingWhitespace: 0, content: 0, trailingWhitespace: 0, ending: 0)
 
 	public var total: Int {
 		leadingWhitespace + content + trailingWhitespace + ending
@@ -83,7 +85,7 @@ public struct LineComponentLengths: Hashable, Sendable {
 			}
 
 			return calculator.textRange(from: start, to: end)
-		case .range:
+		case .full:
 			guard
 				let start = calculator.position(from: position, offset: total),
 				let end = calculator.position(from: start, offset: content)
@@ -105,7 +107,7 @@ public struct LineComponentLengths: Hashable, Sendable {
 			NSRange(location: position + leadingWhitespace, length: content)
 		case .ending:
 			NSRange(location: position + leadingWhitespace + content + trailingWhitespace, length: ending)
-		case .range:
+		case .full:
 			NSRange(location: position, length: total)
 		}
 	}
