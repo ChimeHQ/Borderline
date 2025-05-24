@@ -7,8 +7,8 @@ extension NSString {
 		return loc == NSNotFound ? nil : loc
 	}
 
-	func lastLocation(from set: CharacterSet, in range: NSRange) -> Int? {
-		let loc = rangeOfCharacter(from: set, options: [.backwards], range: range).location
+	func lastLocation(after set: CharacterSet, in range: NSRange) -> Int? {
+		let loc = rangeOfCharacter(from: set, options: [.backwards], range: range).max
 
 		return loc == NSNotFound ? nil : loc
 	}
@@ -45,8 +45,8 @@ public struct UTF16CodePointLineParser: Sendable {
 			nsString.getLineStart(&start, end: &end, contentsEnd: &terminatorStart, for: NSRange(start..<end))
 
 			let contentStart = nsString.firstLocation(from: nonWhitespaceCharacterSet, in: NSRange(start..<terminatorStart)) ?? terminatorStart
-			let contentEnd = nsString.lastLocation(from: .whitespaces, in: NSRange(contentStart..<terminatorStart)) ?? terminatorStart
-						
+			let contentEnd = nsString.lastLocation(after: nonWhitespaceCharacterSet, in: NSRange(contentStart..<terminatorStart)) ?? terminatorStart
+
 			let lengths = LineComponentLengths(
 				leadingWhitespace: contentStart - start,
 				content: contentEnd - contentStart,

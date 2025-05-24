@@ -84,4 +84,14 @@ struct StringLineParserTests {
 
 		#expect(lines == expected)
 	}
+
+	@Test func whitespaceWithinContent() {
+		let lines = UTF16CodePointLineParser().parseLines(in: "a b c", indexOffset: 0, locationOffset: 0, includeLastLine: false)
+
+		let expected = [
+			Line<Int>(index: 0, start: 0, lengths: .init(leadingWhitespace: 0, content: 5, trailingWhitespace: 0, ending: 0)),
+		]
+
+		#expect(lines == expected)
+	}
 }
