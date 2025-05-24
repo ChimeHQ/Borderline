@@ -3,11 +3,9 @@ import Testing
 
 import Borderline
 
-@Suite
 struct StringLineParserTests {
-	@Test
-	func emptyString() {
-		let lines = UTF16CodePointLineParser().parseLines(in: "", indexOffset: 0, locationOffset: 0)
+	@Test func emptyString() {
+		let lines = UTF16CodePointLineParser().parseLines(in: "", indexOffset: 0, locationOffset: 0, includeLastLine: false)
 
 		let expected = [
 			Line<Int>(index: 0, start: 0, lengths: .init(leadingWhitespace: 0, content: 0, trailingWhitespace: 0, ending: 0))
@@ -16,9 +14,8 @@ struct StringLineParserTests {
 		#expect(lines == expected)
 	}
 
-	@Test
-	func singleLine() {
-		let lines = UTF16CodePointLineParser().parseLines(in: "abc", indexOffset: 0, locationOffset: 0)
+	@Test func singleLine() {
+		let lines = UTF16CodePointLineParser().parseLines(in: "abc", indexOffset: 0, locationOffset: 0, includeLastLine: false)
 
 		let expected = [
 			Line<Int>(index: 0, start: 0, lengths: .init(leadingWhitespace: 0, content: 3, trailingWhitespace: 0, ending: 0))
@@ -27,9 +24,8 @@ struct StringLineParserTests {
 		#expect(lines == expected)
 	}
 
-	@Test
-	func singleLineWithLF() {
-		let lines = UTF16CodePointLineParser().parseLines(in: "abc\n", indexOffset: 0, locationOffset: 0)
+	@Test func singleLineWithLF() {
+		let lines = UTF16CodePointLineParser().parseLines(in: "abc\n", indexOffset: 0, locationOffset: 0, includeLastLine: false)
 
 		let expected = [
 			Line<Int>(index: 0, start: 0, lengths: .init(leadingWhitespace: 0, content: 3, trailingWhitespace: 0, ending: 1))
@@ -38,9 +34,8 @@ struct StringLineParserTests {
 		#expect(lines == expected)
 	}
 
-	@Test
-	func singleLineWithCRLF() {
-		let lines = UTF16CodePointLineParser().parseLines(in: "abc\r\n", indexOffset: 0, locationOffset: 0)
+	@Test func singleLineWithCRLF() {
+		let lines = UTF16CodePointLineParser().parseLines(in: "abc\r\n", indexOffset: 0, locationOffset: 0, includeLastLine: false)
 
 		let expected = [
 			Line<Int>(index: 0, start: 0, lengths: .init(leadingWhitespace: 0, content: 3, trailingWhitespace: 0, ending: 2))
@@ -49,13 +44,32 @@ struct StringLineParserTests {
 		#expect(lines == expected)
 	}
 
-	@Test
-	func twoLines() {
-		let lines = UTF16CodePointLineParser().parseLines(in: "abc\ndef", indexOffset: 0, locationOffset: 0)
+	@Test func twoLines() {
+		let lines = UTF16CodePointLineParser().parseLines(in: "abc\ndef", indexOffset: 0, locationOffset: 0, includeLastLine: false)
 
 		let expected = [
 			Line<Int>(index: 0, start: 0, lengths: .init(leadingWhitespace: 0, content: 3, trailingWhitespace: 0, ending: 1)),
 			Line<Int>(index: 1, start: 4, lengths: .init(leadingWhitespace: 0, content: 3, trailingWhitespace: 0, ending: 0)),
+		]
+
+		#expect(lines == expected)
+	}
+	
+	@Test func singleTab() {
+		let lines = UTF16CodePointLineParser().parseLines(in: "\t", indexOffset: 0, locationOffset: 0, includeLastLine: false)
+
+		let expected = [
+			Line<Int>(index: 0, start: 0, lengths: .init(leadingWhitespace: 1, content: 0, trailingWhitespace: 0, ending: 0)),
+		]
+
+		#expect(lines == expected)
+	}
+	
+	@Test func leadingAndTrailingSpaces() {
+		let lines = UTF16CodePointLineParser().parseLines(in: " a ", indexOffset: 0, locationOffset: 0, includeLastLine: false)
+
+		let expected = [
+			Line<Int>(index: 0, start: 0, lengths: .init(leadingWhitespace: 1, content: 1, trailingWhitespace: 1, ending: 0)),
 		]
 
 		#expect(lines == expected)

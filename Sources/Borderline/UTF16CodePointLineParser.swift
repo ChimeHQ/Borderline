@@ -1,5 +1,13 @@
 import Foundation
 
+extension NSString {
+	func firstLocation(from set: CharacterSet, in range: NSRange) -> Int? {
+		let loc = rangeOfCharacter(from: set, range: range).location
+		
+		return loc == NSNotFound ? nil : loc
+	}
+}
+
 public struct UTF16CodePointLineParser: Sendable {
 	public typealias LineType = Line<Int>
 
@@ -23,18 +31,21 @@ public struct UTF16CodePointLineParser: Sendable {
 
 		var start = 0
 		var end = 0
-		var contentsEnd = 0
+		var terminatorStart = 0
 
 		var lines: [LineType] = []
 
 		while end < nsString.length {
-			nsString.getLineStart(&start, end: &end, contentsEnd: &contentsEnd, for: NSRange(start..<end))
+			nsString.getLineStart(&start, end: &end, contentsEnd: &terminatorStart, for: NSRange(start..<end))
 
+			let contentStart = nsString.firstLocation(from: nonWhitespaceCharacterSet, in: NSRange(start..<terminatorStart)) ?? terminatorStart
+			let contentEnd = nsString.firstLocation(from: .whitespaces, in: NSRange(contentStart..<terminatorStart)) ?? terminatorStart
+						
 			let lengths = LineComponentLengths(
-				leadingWhitespace: 0,
-				content: contentsEnd - start,
-				trailingWhitespace: 0,
-				ending: end - contentsEnd
+				leadingWhitespace: contentStart - start,
+				content: contentEnd - contentStart,
+				trailingWhitespace: terminatorStart - contentEnd,
+				ending: end - terminatorStart
 			)
 
 			let index = lines.count + indexOffset
