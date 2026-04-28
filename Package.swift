@@ -8,7 +8,7 @@ let package = Package(
 		.library(name: "Borderline", targets: ["Borderline"]),
 	],
 	dependencies: [
-		.package(url: "https://github.com/ChimeHQ/Rearrange", branch: "main"),
+		.package(url: "https://github.com/ChimeHQ/Rearrange", from: "2.1.0"),
 	],
 	targets: [
 		.target(name: "Borderline", dependencies: ["Rearrange"]),
